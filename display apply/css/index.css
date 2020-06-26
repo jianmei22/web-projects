@@ -1,0 +1,24 @@
+/* 清除元素默认的内外边距 */
+* {
+	padding: 0;
+	margin: 0;
+}
+/* 设置整个大盒子的宽度和高度 */
+.container{
+	position: relative;
+	width: 500px;
+	height: 281px;
+	margin: 100px auto;
+}
+.container .mask{
+	display: none;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 500px;
+	height: 281px;
+	background: rgba(0,0,0,.2) url(../images/arr.png) no-repeat center center;
+}
+.container a:hover .mask{
+	display: block;
+}
