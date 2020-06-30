@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<style type="text/css">
+			.grid {
+				margin: auto;
+				width: 500px;
+				text-align: center;
+			}
+
+			.grid table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+
+			.grid thead {
+				background-color: coral;
+			}
+
+			.grid th,
+			td {
+				padding: 10;
+				border: 1px dashed orange;
+				height: 15px;
+				line-height: 35px;
+			}
+
+			.grid th {
+				background-color: orange;
+			}
+
+			.grid a:hover {
+				color: #FFA500;
+			}
+
+			.put {
+				width: 500px;
+				margin: 0 auto;
+				margin-bottom: 10px;
+			}
+		</style>
+		<title></title>
+	</head>
+	<body>
+		<div id="app">
+			<div class="put">
+				编号：<input type="text" v-model="id" id="id" :disabled="flag" v-focus>
+				名称：<input type="text" v-model="name" id="name">
+				<button type="submit" @click.prvent='handle' :disabled="submitFlag" >添加</button>
+			</div>
+			<div class="grid">
+				<table>
+					<thead>
+						<tr>
+							<td>编号</td>
+							<td>名称</td>
+							<td>操作</td>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- 使用v-for循环，留一行就可以了 -->
+						<tr :key='item.id' v-for="item in books">
+							<td>{{item.id}}</td>
+							<td>{{item.name}}</td>
+							<td>
+								<a href="" @click.prevent='toEdit(item.id)'>修改</a>
+								<span>|</span>
+								<a href="" @click.prevent='deleteBook(item.id)'>删除</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<script src="../js/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			// 鼠标自动聚焦
+			Vue.directive('focus', {
+				inserted: function(el) {
+					el.focus();
+				}
+			});
+			let vm = new Vue({
+				el: '#app',
+				data: {
+					flag: false,
+					submitFlag: false,
+					id: '',
+					name: '',
+					books: []
+				},
+				methods: {
+					handle: function() {
+						if (this.flag) {
+							// 编辑图书操作
+							// 根据当前的id更新数组中对应的数据
+							this.books.some((item) => {
+								// this这里指的是定义这个函数的父级作用域的this
+								if (item.id == this.id) {
+									item.name = this.name;
+									// 完成更新后需要终止
+									return true;
+								}
+							});
+							this.flag = false;
+						} else {
+							// 添加图书
+							// 获取表单中的id和name,然后把这些属性放到一个对象里,
+							// 然后再把这个对象添加到books数组内
+							let book = {};
+							book.id = this.id;
+							book.name = this.name;
+							this.books.push(book);
+						}
+						// 清空表单
+						this.id = '';
+						this.name = '';
+					},
+					// 修改按钮
+					toEdit: function(id) {
+						// 修改的时候不能修改唯一标识id
+						this.flag = true;
+						// 根据id查询出需要编辑的数据
+						// 使用filter过滤
+						let book = this.books.filter(function(item) {
+							return item.id == id;
+						});
+						// 把获取到的数据填充到表单
+						this.id = book[0].id;
+						this.name = book[0].name;
+					},
+					// 删除按钮
+					deleteBook: function(id){
+						// 通过filter方法进行删除
+						this.books = this.books.filter(function (item) {
+							return item.id != id;
+						})
+					}
+					
+				},
+				computed: {
+				  total: function(){
+				    // 计算图书的总数
+				    return this.books.length;
+				  }
+				},
+				watch: {
+				  name: function(val) {
+				    // 验证图书名称是否已经存在
+				    var flag = this.books.some(function(item){
+				      return item.name == val;
+				    });
+				    if(flag) {
+				      // 图书名称存在
+				      this.submitFlag = true;
+				    }else{
+				      // 图书名称不存在
+				      this.submitFlag = false;
+				    }
+				  }
+				},
+				mounted: function(){
+				  // 该生命周期钩子函数被触发的时候，模板已经可以使用
+				  // 一般此时用于获取后台数据，然后把数据填充到模板
+				  var data = [{
+				    id: 1,
+				    name: '三国演义',
+				  },{
+				    id: 2,
+				    name: '水浒传',
+				  },{
+				    id: 3,
+				    name: '红楼梦',
+				  },{
+				    id: 4,
+				    name: '西游记',
+				  }];
+				  this.books = data;
+				}
+			});
+		</script>
+
+	</body>
+</html>
